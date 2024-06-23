@@ -5,9 +5,17 @@ from fontcontroller import FontController
 
 black = (0,0,0)
 
-difficulties = {'easy': 50, 'medium': 250, 'hard': 500}
+difficulties = {'easy': 50, 'medium': 150, 'hard': 300}
 
-def main(winx=800, winy=600):
+def reset(difficulty, winx=400, winy=400):
+	font_controller = FontController()
+	board = Board(winx, winy, font_controller)
+	board.setup(difficulty)
+	print(board.get_num_mines(), 'mines')
+
+	return board
+
+def main(winx=400, winy=400):
 	global difficulties
 
 	pygame.display.init()
@@ -15,12 +23,9 @@ def main(winx=800, winy=600):
 	screen = pygame.display.set_mode((winx, winy))
 	clock = pygame.time.Clock()
 
-	font_controller = FontController()
+	diff = difficulties['easy']
 
-	board = Board(winx, winy, font_controller)
-	board.setup(difficulties['easy'])
-	print(board.get_num_mines(), 'mines')
-
+	board = reset(diff)
 	done = False
 
 	while not done:
@@ -41,6 +46,8 @@ def main(winx=800, winy=600):
 					print("Winner!")
 
 			if e.type == pygame.KEYDOWN:
+				if e.key == pygame.K_RETURN:
+					board = reset(diff)
 				if e.key == pygame.K_ESCAPE:
 					done = True
 					break

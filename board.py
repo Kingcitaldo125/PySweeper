@@ -39,12 +39,15 @@ class Cell:
 	def is_occupied(self):
 		return self.occupied
 
-	def click(self):
+	def click(self, reveal=False):
 		self.clicked = True
 		self.marked = False
 
-		if self.occupied:
+		if self.occupied and not reveal:
 			self.hit_mine = True
+		elif self.occupied and reveal:
+			self.clicked = False
+			self.mark()
 
 	def mark(self):
 		self.marked = True
@@ -89,6 +92,7 @@ class Board:
 		self.marked_cells = set([])
 		self.cell_size = 20
 		self.font_controller = font_controller
+		self.mine_count = 0
 
 	def setup(self, difficulty):
 		row_cells = self.winx // self.cell_size
@@ -108,10 +112,12 @@ class Board:
 			self.cells.append(cell_row)
 			ypos += self.cell_size
 
-	def reveal_mines(self):
+		self.mine_count = self.get_num_mines()
+
+	def reveal_mines(self, reveal_tiles):
 		for row in self.cells:
 			for cell in row:
-				cell.click()
+				cell.click(reveal_tiles)
 
 	def get_num_mines(self):
 		count = 0
@@ -129,6 +135,11 @@ class Board:
 			return
 
 		cell.mark()
+
+		if cell.is_occupied():
+			self.mine_count -= 1
+			print(self.mine_count,"mines left")
+
 		self.marked_cells.add(cell)
 
 	def check_win_condition(self):
@@ -138,6 +149,8 @@ class Board:
 					continue
 				if cell not in self.marked_cells:
 					return False
+
+		self.reveal_mines(True)
 		return True
 
 	def get_cell_from_pos(self, posx, posy):
@@ -191,10 +204,6 @@ class Board:
 
 		cell.update_neighbor_mine_count(neighbor_mine_count)
 
-		if neighbor_mine_count > 0:
-			cell.display_mine_count()
-			return False
-
 		for n in neighbors:
 			if n in visited or n in nset:
 				continue
@@ -209,6 +218,10 @@ class Board:
 			n.update_neighbor_mine_count(l_neighbor_count)
 			if l_neighbor_count > 0:
 				n.display_mine_count()
+
+		if neighbor_mine_count > 0:
+			cell.display_mine_count()
+			#return False
 
 		for n in neighbors:
 			if n in visited or n in nset or n.is_occupied():
