@@ -85,21 +85,25 @@ class Cell:
 			screen.blit(self.flag_image, (self.x + 2, self.y + 2))
 
 class Board:
-	def __init__(self, winx, winy, font_controller, rows=16, cols=30):
+	def __init__(self, winx, winy, xoffset, yoffset, font_controller):
 		self.winx = winx
 		self.winy = winy
+		self.xoffset = xoffset
+		self.yoffset = yoffset
 		self.cells = []
 		self.marked_cells = set([])
 		self.cell_size = 20
 		self.font_controller = font_controller
 		self.mine_count = 0
+		self.red = (255,0,0)
+		self.black = (0,0,0)
 
 	def setup(self, difficulty):
-		row_cells = self.winx // self.cell_size
-		col_cells = self.winy // self.cell_size
+		row_cells = (self.winy - self.xoffset) // self.cell_size
+		col_cells = (self.winy - self.yoffset) // self.cell_size
 
-		xpos = 0
-		ypos = 0
+		xpos = self.xoffset
+		ypos = self.yoffset
 		for y in range(0, col_cells):
 			cell_row = []
 			xpos = 0
@@ -131,14 +135,13 @@ class Board:
 
 	def mark_cell(self, cell):
 		# Don't mark a cell when we know its identity
-		if cell.clicked:
+		if cell.clicked or cell.marked:
 			return
 
 		cell.mark()
 
 		if cell.is_occupied():
 			self.mine_count -= 1
-			print(self.mine_count,"mines left")
 
 		self.marked_cells.add(cell)
 
@@ -154,8 +157,8 @@ class Board:
 		return True
 
 	def get_cell_from_pos(self, posx, posy):
-		x = posx // self.cell_size
-		y = posy // self.cell_size
+		x = (posx - self.xoffset) // self.cell_size
+		y = (posy - self.yoffset) // self.cell_size
 
 		return self.cells[y][x]
 
@@ -245,7 +248,16 @@ class Board:
 		visited = set([])
 		return self.update_help(visited, clicked_cell)
 
+	def display_mines_left(self, screen):
+		rendertext = RenderText(self.font_controller, self.red, self.black)
+		rendertext.update_x(10)
+		rendertext.update_y(10)
+		rendertext.update_text(str(self.mine_count))
+		rendertext.draw(screen)
+
 	def render(self, screen):
+		self.display_mines_left(screen)
+
 		for row in self.cells:
 			for cell in row:
 				cell.render(screen)
