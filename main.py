@@ -42,12 +42,27 @@ def render(screen, board, timer, winx):
 def main(winx=400, winy=400):
 	global difficulties, timer
 
+	diff_setting = 0
+	diff_cond = lambda x: x < 1 or x > 3
+	while diff_cond(diff_setting):
+		diff_setting = int(input("Choose a difficulty: (easy: 1, medium: 2, hard: 3)\n"))
+		if diff_cond(diff_setting):
+			print(f"Not a difficulty: {diff_setting}")
+
 	pygame.display.init()
 
 	screen = pygame.display.set_mode((winx, winy))
 	clock = pygame.time.Clock()
 
 	diff = difficulties['easy']
+	if diff_setting == 1:
+		print("Easy difficulty")
+	elif diff_setting == 2:
+		diff = difficulties['medium']
+		print("Medium difficulty")
+	elif diff_setting == 3:
+		diff = difficulties['hard']
+		print("Hard difficulty")
 
 	board = reset(diff, 0, winy//10, winx, winy)
 	done = False
@@ -59,6 +74,10 @@ def main(winx=400, winy=400):
 		events = pygame.event.get()
 
 		for e in events:
+			if e.type == pygame.QUIT:
+				done = True
+				break
+
 			if e.type == pygame.MOUSEBUTTONDOWN:
 				mx,my = e.pos[0],e.pos[1]
 				xcell = board.get_cell_from_pos(int(mx),int(my))

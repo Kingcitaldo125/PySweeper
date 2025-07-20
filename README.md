@@ -14,7 +14,9 @@ Press `Esc` to quit the game.
 
 ### Playing
 
-Use the **left mouse button** to click on a cell and the **right mouse button** to mark a cell.
+Start the game by selecting a difficulty setting in the terminal window.
+
+After the game starts, use the **left mouse button** to click on a cell and the **right mouse button** to mark a cell.
 You will win the game when all of the cells with mines are marked.
 Good luck!
 
